@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+require("dotenv").config();
 
 const app = express();
 const todos = [];
@@ -12,78 +13,96 @@ app.use(
 	})
 );
 
+const api = express.Router();
+
 // TODO 1 : GET ALL TODOS
-app.get("/api/todos", (req, res) => {
-	res.status(200).json({
-		success: true,
-		data: {
-			...todos,
-		},
-	});
+api.get("/todos", (_req, res) => {
+	responseGetData(res, todos);
 });
 
 // TODO 2 : GET TODO BY ID
-app.get("/api/todos/:id", (req, res) => {
+api.get("/todos/:id", (req, res) => {
 	const todo = todos.find((u) => u.id == req.params.id);
-	if (!todo)
-		return res.status(404).json({
-			success: false,
-			message: "Data not found",
-		});
-	res.status(200).json({
-		success: true,
-		data: {
-			todo,
-		},
-	});
+	if (!todo)return responseNotFound(res);
+	responseGetData(res, todo);
 });
 
 // TODO 3 : ADD TODO
-app.post("/api/todos", (req, res) => {
+api.post("/todos", (req, res) => {
 	const todo = {
 		id: todos.length,
 		todo: req.body.todo,
 	};
 	todos.push(todo);
-	res.status(201).send({
-		status: "success",
-		message: "Data berhasil ditambahkan",
-	});
+	responseCreated(res);
 });
 
 // TODO 4 : EDIT TODO BY ID
-app.put("/api/todos/:id", (req, res) => {
+api.put("/todos/:id", (req, res) => {
 	const todo = todos.find((u) => u.id == req.params.id);
-	if (!todo)
-		return res.status(404).json({
-			success: false,
-			message: "Data not found",
-		});
+	if (!todo)return responseNotFound(res);
 	todo.todo = req.body.todo;
-	res.status(200).send({
-		status: "success",
-		message: "Data berhasil diubah",
-	});
+	responseUpdated(res);
 });
 
 // TODO 5 : DELETE TODO BY ID
-app.delete("/api/todos/:id", (req, res) => {
+api.delete("/todos/:id", (req, res) => {
 	const todo = todos.find((u) => u.id == req.params.id);
-	if (!todo)
-		return res.status(404).json({
-			success: false,
-			message: "Data not found",
-		});
+	if (!todo)return responseNotFound(res);
 	todos.splice(todos.indexOf(todo), 1);
-	res.status(200).send({
-		status: "success",
-		message: "Data berhasil dihapus",
-	});
+	responseDeleted(res);
 });
 
-app.get("*", (req, res) => {
+api.get("*", (_req, res) => {
 	res.sendStatus(404);
 });
+
+
+app.use("/api", api);
+
+
+const responseCreated = (res) => {
+	res.status(201).send({
+		is_success: true,
+		message: "Data berhasil ditambahkan",
+	});
+}
+
+const responseUpdated = (res) => {
+	res.status(200).send({
+		is_success: true,
+		message: "Data berhasil diubah",
+	});
+}
+
+const responseDeleted = (res) => {
+	res.status(200).send({
+		is_success: true,
+		message: "Data berhasil dihapus",
+	});
+}
+
+const responseNotFound = (res) => {
+	res.status(404).send({
+		is_success: false,
+		message: "Data tidak ditemukan",
+	});
+}
+
+const responseBadRequest = (res) => {
+	res.status(400).send({
+		is_success: false,
+		message: "Data tidak valid",
+	});
+}
+
+const responseGetData = (res, data) => {
+	res.status(200).send({
+		is_success: true,
+		data : data,
+	});
+}
+
 
 app.listen(PORT, (error) => {
 	if (error) throw error;
