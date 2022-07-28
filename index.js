@@ -23,7 +23,7 @@ api.get("/todos", (_req, res) => {
 // TODO 2 : GET TODO BY ID
 api.get("/todos/:id", (req, res) => {
 	const todo = todos.find((u) => u.id == req.params.id);
-	if (!todo)return responseNotFound(res);
+	if (!todo) return responseNotFound(res);
 	responseGetData(res, todo);
 });
 
@@ -40,7 +40,7 @@ api.post("/todos", (req, res) => {
 // TODO 4 : EDIT TODO BY ID
 api.put("/todos/:id", (req, res) => {
 	const todo = todos.find((u) => u.id == req.params.id);
-	if (!todo)return responseNotFound(res);
+	if (!todo) return responseNotFound(res);
 	todo.todo = req.body.todo;
 	responseUpdated(res);
 });
@@ -48,61 +48,63 @@ api.put("/todos/:id", (req, res) => {
 // TODO 5 : DELETE TODO BY ID
 api.delete("/todos/:id", (req, res) => {
 	const todo = todos.find((u) => u.id == req.params.id);
-	if (!todo)return responseNotFound(res);
+	if (!todo) return responseNotFound(res);
 	todos.splice(todos.indexOf(todo), 1);
 	responseDeleted(res);
 });
 
+// TODO 6 : DELETE ALL TODOS
+api.delete("/todos", (req, res) => {
+	todos.splice(0, todos.length);
+	responseDeleted(res);
+});
 api.get("*", (_req, res) => {
 	res.sendStatus(404);
 });
 
-
 app.use("/api", api);
-
 
 const responseCreated = (res) => {
 	res.status(201).send({
 		is_success: true,
 		message: "Data berhasil ditambahkan",
 	});
-}
+};
 
 const responseUpdated = (res) => {
 	res.status(200).send({
 		is_success: true,
 		message: "Data berhasil diubah",
 	});
-}
+};
 
 const responseDeleted = (res) => {
 	res.status(200).send({
 		is_success: true,
 		message: "Data berhasil dihapus",
 	});
-}
+};
 
 const responseNotFound = (res) => {
 	res.status(404).send({
 		is_success: false,
 		message: "Data tidak ditemukan",
 	});
-}
+};
 
 const responseBadRequest = (res) => {
 	res.status(400).send({
 		is_success: false,
 		message: "Data tidak valid",
 	});
-}
+};
 
 const responseGetData = (res, data) => {
 	res.status(200).send({
 		is_success: true,
-		data : data,
+		data: data,
 	});
-}
-
+};
 
 app.listen(PORT, (error) => {
 	if (error) throw error;
