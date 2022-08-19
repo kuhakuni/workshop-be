@@ -1,9 +1,18 @@
+const todos = [];
+
 const express = require("express");
 const bodyParser = require("body-parser");
 require("dotenv").config();
 
+const {
+	responseCreated,
+	responseUpdated,
+	responseDeleted,
+	responseNotFound,
+	responseGetData,
+} = require("./handler");
+
 const app = express();
-const todos = [];
 const PORT = process.env.port || 5000;
 
 app.use(bodyParser.json());
@@ -13,22 +22,20 @@ app.use(
 	})
 );
 
-const api = express.Router();
-
 // TODO 1 : GET ALL TODOS
-api.get("/todos", (_req, res) => {
+app.get("/todos", (_req, res) => {
 	responseGetData(res, todos);
 });
 
 // TODO 2 : GET TODO BY ID
-api.get("/todos/:id", (req, res) => {
+app.get("/todos/:id", (req, res) => {
 	const todo = todos.find((u) => u.id == req.params.id);
 	if (!todo) return responseNotFound(res);
 	responseGetData(res, todo);
 });
 
 // TODO 3 : ADD TODO
-api.post("/todos", (req, res) => {
+app.post("/todos", (req, res) => {
 	const todo = {
 		id: todos.length,
 		todo: req.body.todo,
@@ -38,7 +45,7 @@ api.post("/todos", (req, res) => {
 });
 
 // TODO 4 : EDIT TODO BY ID
-api.put("/todos/:id", (req, res) => {
+app.put("/todos/:id", (req, res) => {
 	const todo = todos.find((u) => u.id == req.params.id);
 	if (!todo) return responseNotFound(res);
 	todo.todo = req.body.todo;
@@ -46,7 +53,7 @@ api.put("/todos/:id", (req, res) => {
 });
 
 // TODO 5 : DELETE TODO BY ID
-api.delete("/todos/:id", (req, res) => {
+app.delete("/todos/:id", (req, res) => {
 	const todo = todos.find((u) => u.id == req.params.id);
 	if (!todo) return responseNotFound(res);
 	todos.splice(todos.indexOf(todo), 1);
@@ -54,57 +61,14 @@ api.delete("/todos/:id", (req, res) => {
 });
 
 // TODO 6 : DELETE ALL TODOS
-api.delete("/todos", (req, res) => {
+app.delete("/todos", (_req, res) => {
 	todos.splice(0, todos.length);
 	responseDeleted(res);
 });
-api.get("*", (_req, res) => {
+
+app.get("*", (_req, res) => {
 	res.sendStatus(404);
 });
-
-app.use("/api", api);
-
-const responseCreated = (res) => {
-	res.status(201).send({
-		is_success: true,
-		message: "Data berhasil ditambahkan",
-	});
-};
-
-const responseUpdated = (res) => {
-	res.status(200).send({
-		is_success: true,
-		message: "Data berhasil diubah",
-	});
-};
-
-const responseDeleted = (res) => {
-	res.status(200).send({
-		is_success: true,
-		message: "Data berhasil dihapus",
-	});
-};
-
-const responseNotFound = (res) => {
-	res.status(404).send({
-		is_success: false,
-		message: "Data tidak ditemukan",
-	});
-};
-
-const responseBadRequest = (res) => {
-	res.status(400).send({
-		is_success: false,
-		message: "Data tidak valid",
-	});
-};
-
-const responseGetData = (res, data) => {
-	res.status(200).send({
-		is_success: true,
-		data: data,
-	});
-};
 
 app.listen(PORT, (error) => {
 	if (error) throw error;
