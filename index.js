@@ -15,12 +15,35 @@ const {
 const app = express();
 const PORT = process.env.port || 5000;
 
+const cors = require('cors')
+
 app.use(bodyParser.json());
 app.use(
 	bodyParser.urlencoded({
 		extended: true,
 	})
 );
+
+app.use(cors({
+	origin: [
+		"*",
+	],
+	credentials: true,
+	methods: "GET,POST,DELETE,PUT,PATCH",
+	crossDomain: true,
+	allowedHeaders: [
+		"Content-Type",
+		"Authorization",
+		"Accept",
+		"Origin",
+		"X-Requested-With",
+		"X-HTTP-Method-Override",
+	],
+	preflightContinue: false,
+	optionsSuccessStatus: 204,
+}))
+
+
 
 // TODO 1 : GET ALL TODOS
 app.get("/todos", (_req, res) => {
