@@ -10,7 +10,7 @@ const {
 	responseDeleted,
 	responseNotFound,
 	responseGetData,
-} = require("./handler");
+} = require("./response");
 
 const app = express();
 const PORT = process.env.port || 5000;
